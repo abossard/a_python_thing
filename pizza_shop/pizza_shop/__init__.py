@@ -7,7 +7,6 @@ from opentelemetry.sdk.trace import _Span
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Starting application")
@@ -34,5 +33,5 @@ async def http_exception_handler(request: Request, exc):
 
 @app.get("/")
 async def root():
-    order = create_random_order()
+    # order = create_random_order()
     return {"message": "Hello World"}

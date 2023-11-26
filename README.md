@@ -33,3 +33,26 @@ To create and update a best practice Python setup with Poetry, follow these step
 For more information on Poetry, check out the official documentation [here](https://python-poetry.org/docs/). It's a great resource to explore all the features and best practices for managing your Python projects.
 
 Happy coding! 🚀
+
+```shell
+docker run -d --name jaeger \
+  -p 5775:5775/udp \
+  -p 6831:6831/udp \
+  -p 6832:6832/udp \
+  -p 5778:5778 \
+  -p 16686:16686 \
+  -p 14268:14268 \
+  -p 9411:9411 \
+  jaegertracing/all-in-one:1.6
+```
+
+poetry config virtualenvs.in-project true
+
+
+```shell
+mkdir data
+docker run -v $PWD/data:/data -e ZO_DATA_DIR="/data" -p 5080:5080 \
+    -e ZO_ROOT_USER_EMAIL="root@example.com" -e ZO_ROOT_USER_PASSWORD="Complexpass#123" \
+    public.ecr.aws/zinclabs/openobserve:latest
+
+```
