@@ -18,7 +18,7 @@ def create_random_order() -> Order:
         price=random.uniform(5.0, 20.0),
         description=f'Pizza {i}',
         ingredients=random.sample(ingredients, random.randint(1, len(ingredients)))
-    ) for i in range(random.randint(1, 3))]
+    ) for i in range(random.randint(1, 4))]
 
     order = Order(
         recipient_name='John Doe',

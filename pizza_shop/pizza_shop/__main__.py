@@ -31,4 +31,4 @@ FastAPIInstrumentor().instrument_app(app)
 
 port = int(os.getenv('PORT', 8000))
 host = os.getenv('HOST', "0.0.0.0")
-run(app, host=host, port=port)
+run("pizza_shop:app", host=host, port=port, reload=True)

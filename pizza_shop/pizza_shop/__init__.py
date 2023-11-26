@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from opentelemetry.context import get_current as get_current_context
 from opentelemetry.sdk.trace import _Span
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
+from pizzalibrary.functions import create_random_order
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,5 +33,8 @@ async def http_exception_handler(request: Request, exc):
 
 @app.get("/")
 async def root():
-    # order = create_random_order()
-    return {"message": "Hello World"}
+    order = create_random_order()
+    return {
+        "message": "Hello World!",
+        "order": order
+    }
