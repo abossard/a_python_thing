@@ -1,0 +1,16 @@
+# Python
+*.pyc
+__pycache__/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Visual Studio Code
+.vscode/
+.settings/
+
+# IntelliJ
+.idea/
+*.iml
+out/
