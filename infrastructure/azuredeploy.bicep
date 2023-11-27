@@ -7,7 +7,7 @@ param databaseAccounts_anbo_pizza_mongodb_name string = 'anbo-pizza-mongodb'
 
 resource components_anbo_pizza_appi_name 'microsoft.insights/components@2020-02-02' = {
   name: components_anbo_pizza_appi_name_param
-  location: 'westeurope'
+  location: location
   kind: 'web'
   properties: {
     Application_Type: 'web'
