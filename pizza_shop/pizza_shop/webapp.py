@@ -6,6 +6,7 @@ from opentelemetry.context import get_current as get_current_context
 from opentelemetry.sdk.trace import _Span
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from pizzalibrary.functions import create_random_order
+from opentelemetry import metrics
 
 
 @asynccontextmanager
@@ -34,15 +35,17 @@ async def http_exception_handler(request: Request, exc):
 
 
 logger = logging.getLogger(__name__)
-
+meter = metrics.get_meter_provider().get_meter(__name__)
+pizza_counter = meter.create_counter("pizza_counter", "number of pizzas ordered", "pizzas")
 
 @app.get("/")
 async def root():
+    pizza_counter.add(1)
     order = create_random_order()
     logger.info(f"Created order: {order}")
     logger.debug("Debugging order creation")
-    logger.warning("Warning order creation")
-    logger.error("Error order creation")
+    # logger.warning("Warning order creation")
+    # logger.error("Error order creation")
     return {
         "message": "Hello World!",
         "order": order
