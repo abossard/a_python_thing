@@ -8,12 +8,13 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from pizzalibrary.functions import create_random_order, send_pizza_order
 from opentelemetry import metrics
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Starting application")
     yield
     print("Stopping application")
-    
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -36,6 +37,7 @@ async def http_exception_handler(request: Request, exc):
 logger = logging.getLogger(__name__)
 meter = metrics.get_meter_provider().get_meter(__name__)
 pizza_counter = meter.create_counter("pizza_counter", "number of pizzas ordered", "pizzas")
+
 
 @app.get("/")
 async def root():
