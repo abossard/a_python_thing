@@ -12,8 +12,11 @@ logging.info("Starting application")
 
 from pizza_shop.webapp import app
 
-FastAPIInstrumentor().instrument_app(app)
 print("Ready to serve")
 port = int(os.getenv('PORT', 8000))
 host = os.getenv('HOST', "0.0.0.0")
-run(app, host=host, port=port)
+if os.getenv('DEBUG', False):
+    run("pizza_shop.webapp:app", host=host, port=port, reload=True)
+else:
+    FastAPIInstrumentor().instrument_app(app)
+    run(app, host=host, port=port, reload=False)

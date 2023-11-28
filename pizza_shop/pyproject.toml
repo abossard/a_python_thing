@@ -16,6 +16,8 @@ pizzalibrary = {path = "../pizzalibrary", develop = true}
 opentelemetry-exporter-otlp = "^1.21.0"
 azure-monitor-opentelemetry-exporter = "^1.0.0b19"
 opentelemetry-sdk = "^1.21.0"
+azure-servicebus = "^7.11.4"
+azure-core = "^1.29.5"
 
 
 [build-system]

@@ -1,0 +1,5 @@
+RG=anbo-pizza-shop
+L=westeurope
+
+az group create -n $RG -l $L
+az deployment group create -g $RG --template-file azuredeploy.bicep

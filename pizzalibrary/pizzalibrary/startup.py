@@ -22,7 +22,7 @@ def setup_telemetry(service_name, service_instance_id):
     # looking for OLTP endpoint
     oltp_endpoint = os.environ.get("OLTP_ENDPOINT")
     oltp_auth_key = os.environ.get("OLTP_AUTH_KEY")
-    application_insights_connection_string = os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING")
+    application_insights_connection_string = False #os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING")
 
     tracer_provider = TracerProvider(resource=resource)
     logger_provider = LoggerProvider(resource=resource)
@@ -93,7 +93,10 @@ def setup_telemetry(service_name, service_instance_id):
         trace.set_tracer_provider(tracer_provider)
 
         metrics_exporter = ConsoleMetricExporter()
-        reader = PeriodicExportingMetricReader(metrics_exporter, export_interval_millis=5000)
+        reader = PeriodicExportingMetricReader(metrics_exporter, export_interval_millis=60000)
         metrics.set_meter_provider(MeterProvider(metric_readers=[reader]))
+        azure_sdk_tracing_implementation = os.environ.get("AZURE_SDK_TRACING_IMPLEMENTATION")
+        if azure_sdk_tracing_implementation:
+            print("AZURE_SDK_TRACING_IMPLEMENTATION is set to:", azure_sdk_tracing_implementation)
 
     logging.getLogger().info("Tracing and logging initialized")

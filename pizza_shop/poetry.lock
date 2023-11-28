@@ -83,6 +83,22 @@ opentelemetry-api = ">=1.20,<2.0"
 opentelemetry-sdk = ">=1.20,<2.0"
 
 [[package]]
+name = "azure-servicebus"
+version = "7.11.4"
+description = "Microsoft Azure Service Bus Client Library for Python"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "azure-servicebus-7.11.4.tar.gz", hash = "sha256:f7bd297791b6a577ce36a39ea0abb10aa0f875b6bb0d31522ed9ed2bb0288d4c"},
+    {file = "azure_servicebus-7.11.4-py3-none-any.whl", hash = "sha256:8d1f44c5c2279163aa5af7105523bf74c341fe8704e5278a56dc7de56fed82f3"},
+]
+
+[package.dependencies]
+azure-core = ">=1.24.0,<2.0.0"
+isodate = ">=0.6.0"
+typing-extensions = ">=4.0.1"
+
+[[package]]
 name = "backoff"
 version = "2.2.1"
 description = "Function decoration for backoff and retry"
@@ -1330,4 +1346,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e7895b52bf2e7e442d900acd306bf31c90535f369ec1c7151b81868ddcea88e6"
+content-hash = "67aa9067c2d7d7c81c21c1b85f059feccdf2a462bd19bb4df30d7ba3ee3a8aa8"

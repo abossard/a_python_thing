@@ -4,6 +4,9 @@ param components_anbo_pizza_appi_name_param string = 'anbo-pizza-appi'
 param storageAccounts_anbopizzastore_name string = 'anbopizzastore'
 param workspaces_anbo_pizza_law_name string = 'anbo-pizza-law'
 param databaseAccounts_anbo_pizza_mongodb_name string = 'anbo-pizza-mongodb'
+param managedEnvironments_anbo_pizza_app_env_name_param string = 'anbo-pizza-app-env'
+param containerapps_anbo_pizza_web_name_param string = 'anbo-pizza-web'
+param pizza_orders_queue_name string = 'pizza-orders'
 
 resource components_anbo_pizza_appi_name 'microsoft.insights/components@2020-02-02' = {
   name: components_anbo_pizza_appi_name_param
@@ -13,7 +16,7 @@ resource components_anbo_pizza_appi_name 'microsoft.insights/components@2020-02-
     Application_Type: 'web'
     Flow_Type: 'Redfield'
     Request_Source: 'IbizaAIExtension'
-    RetentionInDays: 90
+    RetentionInDays: 30
     WorkspaceResourceId: workspaces_anbo_pizza_law_name_resource.id
     IngestionMode: 'LogAnalytics'
     publicNetworkAccessForIngestion: 'Enabled'
@@ -39,7 +42,7 @@ resource databaseAccounts_anbo_pizza_mongodb_name_resource 'Microsoft.DocumentDB
     isVirtualNetworkFilterEnabled: false
     virtualNetworkRules: []
     disableKeyBasedMetadataWriteAccess: false
-    enableFreeTier: false
+    enableFreeTier: true
     enableAnalyticalStorage: false
     analyticalStorageConfiguration: {
       schemaType: 'FullFidelity'
@@ -102,7 +105,7 @@ resource workspaces_anbo_pizza_law_name_resource 'Microsoft.OperationalInsights/
     features: {
       enableLogAccessUsingOnlyResourcePermissions: true
     }
-    workspaceCapping: {
+    workspaceCapping: { 
       dailyQuotaGb: -1
     }
     publicNetworkAccessForIngestion: 'Enabled'
@@ -123,6 +126,12 @@ resource namespaces_anbopizza_name_resource 'Microsoft.ServiceBus/namespaces@202
     publicNetworkAccess: 'Enabled'
     disableLocalAuth: false
     zoneRedundant: false
+  }
+  resource pizza_orders 'queues' = {
+    name: pizza_orders_queue_name
+    properties: {
+
+    }
   }
 }
 
@@ -165,6 +174,16 @@ resource storageAccounts_anbopizzastore_name_resource 'Microsoft.Storage/storage
     accessTier: 'Hot'
   }
 }
+resource namespaces_anbopizza_name_ReadAndListenAccessKey 'Microsoft.ServiceBus/namespaces/authorizationrules@2022-10-01-preview' = {
+  parent: namespaces_anbopizza_name_resource
+  name: 'ReadAndListen'
+  properties: {
+    rights: [
+      'Listen'
+      'Send'
+    ]
+  }
+}
 
 resource namespaces_anbopizza_name_RootManageSharedAccessKey 'Microsoft.ServiceBus/namespaces/authorizationrules@2022-10-01-preview' = {
   parent: namespaces_anbopizza_name_resource
@@ -175,6 +194,73 @@ resource namespaces_anbopizza_name_RootManageSharedAccessKey 'Microsoft.ServiceB
       'Manage'
       'Send'
     ]
+  }
+}
+
+resource managedEnvironments_anbo_pizza_app_env_name 'Microsoft.App/managedEnvironments@2023-05-02-preview' = {
+  name: managedEnvironments_anbo_pizza_app_env_name_param
+  location: location
+  properties: {
+    appLogsConfiguration: {
+      destination: 'log-analytics'
+      logAnalyticsConfiguration: {
+        customerId: workspaces_anbo_pizza_law_name_resource.properties.customerId
+        sharedKey: workspaces_anbo_pizza_law_name_resource.listKeys().primarySharedKey
+      }
+    }
+    zoneRedundant: false
+    kedaConfiguration: {}
+    daprConfiguration: {}
+    customDomainConfiguration: {}
+    peerAuthentication: {
+      mtls: {
+        enabled: false
+      }
+    }
+  }
+}
+
+resource containerapps_anbo_pizza_web_name 'Microsoft.App/containerapps@2023-05-02-preview' = {
+  name: containerapps_anbo_pizza_web_name_param
+  location: location
+  identity: {
+    type: 'None'
+  }
+  properties: {
+    managedEnvironmentId: managedEnvironments_anbo_pizza_app_env_name.id
+    environmentId: managedEnvironments_anbo_pizza_app_env_name.id
+    configuration: {
+      activeRevisionsMode: 'Single'
+      ingress: {
+        external: true
+        targetPort: 80
+        exposedPort: 0
+        transport: 'Auto'
+        traffic: [
+          {
+            weight: 100
+            latestRevision: true
+          }
+        ]
+        allowInsecure: false
+      }
+    }
+    template: {
+      containers: [
+        {
+          image: 'mcr.microsoft.com/k8se/quickstart:latest'
+          name: 'simple-hello-world-container'
+          resources: {
+            cpu: json('0.25')
+            memory: '0.5Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 0
+        maxReplicas: 10
+      }
+    }
   }
 }
 
