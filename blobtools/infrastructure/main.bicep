@@ -80,4 +80,5 @@ output deployEnvironment string = join([
   'COMPLETED_SAGA_QUEUE_NAME=${storageAccount::queueServices::completedSagaQueue.name}'
   'SAGA_CONTAINER_NAME=${storageAccount::blobServices::saga.name}'
   'TIMESERIES_CONTAINER_NAME=${storageAccount::blobServices::timeseries.name}'
+  'AZURE_SDK_TRACING_IMPLEMENTATION=opentelemetry'
 ], '\n')

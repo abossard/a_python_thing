@@ -12,4 +12,3 @@ deployOutput=$(az deployment group show --resource-group $resourceGroupName --na
 
 # Create or update the .env file with the deployOutput value
 echo "$deployOutput" >! .env
-
