@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "exploration"
+name = "blobtools"
 version = "0.1.0"
 description = ""
 authors = ["Andre Bossard <andre.bossard@microsoft.com>"]
@@ -13,8 +13,8 @@ azure-storage-blob = "^12.19.0"
 azure-storage-queue = "^12.9.0"
 azure-identity = "^1.15.0"
 azure-core = "^1.29.5"
-pizzalibrary = {path = "../pizzalibrary", develop = true}
 python-dotenv = "^1.0.0"
+opentelemetry-exporter-zipkin = "^1.21.0"
 
 
 [build-system]
