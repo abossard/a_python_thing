@@ -46,3 +46,7 @@ docker run -v $PWD/data:/data -e ZO_DATA_DIR="/data" -p 5080:5080 \
     public.ecr.aws/zinclabs/openobserve:latest
 
 ```
+
+
+## Todo
+[ ] Minimal Console Logging (Exceptions, Warnings)

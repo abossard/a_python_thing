@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "exploration"
+version = "0.1.0"
+description = ""
+authors = ["Andre Bossard <andre.bossard@microsoft.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+opentelemetry-sdk = "^1.21.0"
+azure-monitor-opentelemetry-exporter = "^1.0.0b19"
+azure-storage-blob = "^12.19.0"
+azure-storage-queue = "^12.9.0"
+azure-identity = "^1.15.0"
+azure-core = "^1.29.5"
+pizzalibrary = {path = "../pizzalibrary", develop = true}
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,9 @@
+# Define environment variables for resource group name and location
+resourceGroupName=anbo-indexed-tags
+location=westeurope
+
+# Create a resource group
+az group create --name $resourceGroupName --location $location
+
+# Make a resource group deployment with the "main.bicep" file
+az deployment group create --resource-group $resourceGroupName --template-file infastructure/main.bicep

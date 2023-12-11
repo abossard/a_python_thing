@@ -298,6 +298,12 @@ resource storageAccounts_anbopizzastore_name_default 'Microsoft.Storage/storageA
     }
     isVersioningEnabled: false
   }
+  resource pizza_container 'containers' = {
+    name: 'pizza'
+    properties: {
+      publicAccess: 'None'
+    }
+  }
 }
 
 resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_anbopizzastore_name_default 'Microsoft.Storage/storageAccounts/fileServices@2023-01-01' = {

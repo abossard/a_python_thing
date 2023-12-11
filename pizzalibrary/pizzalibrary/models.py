@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import List
 from pydantic import BaseModel
+from pydantic import Field
+import uuid
 
 
 class SizeEnum(str, Enum):
@@ -32,7 +34,11 @@ class Pizza(BaseModel):
 
 
 class Order(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     recipient_name: str
     pizzas: List[Pizza]
-    position: int
 
+class Payment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    order_id: str
+    secret_data: str
