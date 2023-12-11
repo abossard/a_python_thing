@@ -1,9 +1,9 @@
 import datetime
 import uuid
+from blobtools.clients import get_blob_service_client
 from blobtools.logging import configure_opentelemetry
 from dotenv import load_dotenv, find_dotenv
 import asyncio
-from azure.storage.blob.aio import BlobServiceClient
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 import secrets
@@ -49,15 +49,9 @@ ITEMS_IN_TOTAL = 1000
 
 configure_opentelemetry(SERVICE_NAME)
 
-def get_blob_service_client():
-    blob_service_client = BlobServiceClient.from_connection_string(
-        conn_str=STORAGE_ACCOUNT_CONNECTION_STRING
-    )
-    return blob_service_client
-
 async def main():
     with trace.get_tracer(__name__).start_as_current_span(SERVICE_NAME):
-        blob_service_client = get_blob_service_client()
+        blob_service_client = get_blob_service_client(STORAGE_ACCOUNT_CONNECTION_STRING)
         # get container client
         container_client = blob_service_client.get_container_client(SAGA_CONTAINER_NAME)
         # create container if not exists
