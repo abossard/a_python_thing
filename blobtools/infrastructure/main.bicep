@@ -70,9 +70,11 @@ resource systemTopicsBlobEvents 'Microsoft.EventGrid/systemTopics@2022-06-15' = 
   }
 }
 
+var primaryKey = storageAccount.listKeys().keys[0].value
+var connectionString = 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${primaryKey};EndpointSuffix=${environment().suffixes.storage}'
+
 output deployEnvironment string = join([
-  'STORAGE_ACCOUNT_CONNECTION_STRING=${storageAccount.properties.primaryEndpoints.blob}'
-  'STORAGE_QUEUE_CONNECTION_STRING=${storageAccount.properties.primaryEndpoints.queue}'
+  'STORAGE_ACCOUNT_CONNECTION_STRING="${connectionString}"'
   'STORAGE_ACCOUNT_NAME=${storageAccount.name}'
   'NEW_SAGA_QUEUE_NAME=${storageAccount::queueServices::newSagaQueue.name}'
   'COMPLETED_SAGA_QUEUE_NAME=${storageAccount::queueServices::completedSagaQueue.name}'

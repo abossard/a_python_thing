@@ -1,0 +1,15 @@
+# Define environment variables for resource group name and location
+resourceGroupName=anbo-blobtools
+location=westeurope
+
+# Create a resource group
+az group create --name $resourceGroupName --location $location
+
+az deployment group create --resource-group $resourceGroupName --template-file infrastructure/main.bicep
+
+# get deployment output deployEnvironment
+deployOutput=$(az deployment group show --resource-group $resourceGroupName --name main --query properties.outputs.deployEnvironment.value -o tsv)
+
+# Create or update the .env file with the deployOutput value
+echo "$deployOutput" >! .env
+
