@@ -45,12 +45,13 @@ def create_random_order_payment_pair() -> Tuple[Order, Payment]:
 SERVICE_NAME = "blobtools:step_1_generate"
 BATCH_SIZE = 5
 ITEMS_IN_TOTAL = 20
+SECONDS_TO_WAIT_BETWEEN_BATCHES = 10
 
 configure_opentelemetry(SERVICE_NAME)
 
 async def main():
     message_metric = 0
-    with trace.get_tracer(__name__).start_as_current_span(SERVICE_NAME) as parent_span:
+    with trace.get_tracer(__name__).start_as_current_span("generating-data") as parent_span:
         blob_service_client = get_blob_service_client(STORAGE_ACCOUNT_CONNECTION_STRING)
         # get container client
         container_client = blob_service_client.get_container_client(SAGA_CONTAINER_NAME)
@@ -61,21 +62,20 @@ async def main():
         order_payment_list = list(orders) + list(payments)
         random.shuffle(order_payment_list)
         
-        for i in range(0, len(order_payment_list), BATCH_SIZE):
-            parent_span.add_event(f"Uploading batch starting at {i}")
-            batch = order_payment_list[i:i+BATCH_SIZE]
-            for item in batch:
-                print(item.id, item.__class__.__name__, item.get_filename())
-
-            async def upload_blob(item):
+        async def upload_blob(item):
                 blob_client = container_client.get_blob_client(item.get_filename())
                 await blob_client.upload_blob(item.model_dump_json())
                 print(f"Uploaded {item.get_filename()}")
                 await blob_client.close()
 
+        for i in range(0, len(order_payment_list), BATCH_SIZE):
+            parent_span.add_event(f"Uploading batch starting at {i}")
+            batch = order_payment_list[i:i+BATCH_SIZE]
             upload_tasks = [upload_blob(item) for item in batch]
             await asyncio.gather(*upload_tasks)
             message_metric += len(batch)
+            parent_span.add_event(f"Uploaded batch starting at {i}")
+            await asyncio.sleep(SECONDS_TO_WAIT_BETWEEN_BATCHES)
 
         await container_client.close()
         await blob_service_client.close()
