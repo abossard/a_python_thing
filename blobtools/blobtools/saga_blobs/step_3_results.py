@@ -13,25 +13,39 @@ from blobtools.config import COMPLETED_SAGA_QUEUE_NAME, NEW_SAGA_QUEUE_NAME, SAG
 
 SERVICE_NAME = "blobtools:step_3_results"
 BATCH_SIZE = 100
+SLEEP_BETWEEN_LOOPS = 8
 
 configure_opentelemetry(SERVICE_NAME)
 
-
 async def main():
     message_metric = 0
-    with trace.get_tracer(__name__).start_as_current_span(SERVICE_NAME) as parent_span:
-        queue_client = get_storage_queue_client(STORAGE_ACCOUNT_CONNECTION_STRING, COMPLETED_SAGA_QUEUE_NAME)
-        async for message in queue_client.receive_messages(max_messages=BATCH_SIZE):
-            plain_message = message.content
-            parent_span.add_event(f"Received message: {plain_message}", attributes={"message": plain_message})
-            json_message = json.loads(plain_message)
-            saga_result = SagaResult(**json_message)
-            print(f"Received message: {saga_result}")
-            await queue_client.delete_message(message)
-            message_metric += 1
+    loop_metric = 0
+    try:
+        while True:
+            with trace.get_tracer(__name__).start_as_current_span(f"message-loop-{loop_metric}") as parent_span:
+                queue_client = get_storage_queue_client(STORAGE_ACCOUNT_CONNECTION_STRING, COMPLETED_SAGA_QUEUE_NAME)
+                async for message in queue_client.receive_messages(max_messages=BATCH_SIZE):
+                    plain_message = message.content
+                    parent_span.add_event(f"Received message: {plain_message}", attributes={"message": plain_message})
+                    json_message = json.loads(plain_message)
+                    saga_result = SagaResult(**json_message)
+                    print(f"Received message: {saga_result}")
+                    await queue_client.delete_message(message)
+                    message_metric += 1
+                await queue_client.close()
+                parent_span.set_attribute("message_metric", message_metric)
+                print(f"Processed {message_metric} messages")
+            print(f"Sleeping for {SLEEP_BETWEEN_LOOPS} seconds...")
+            await asyncio.sleep(SLEEP_BETWEEN_LOOPS)
+            loop_metric += 1
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt received, exiting...")
+    except Exception as e:
+        print(f"Exception occurred: {e}")
+        raise e
+    finally:
+        print("Exiting...")
         await queue_client.close()
-        parent_span.set_attribute("message_metric", message_metric)
-        print(f"Processed {message_metric} messages")
 
 if __name__ == "__main__":
     asyncio.run(main())
