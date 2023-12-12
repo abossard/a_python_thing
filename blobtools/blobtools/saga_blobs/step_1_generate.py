@@ -43,14 +43,14 @@ def create_random_order_payment_pair() -> Tuple[Order, Payment]:
 # Constants from environment variables
 
 SERVICE_NAME = "blobtools:step_1_generate"
-BATCH_SIZE = 2
-ITEMS_IN_TOTAL = 2
-
+BATCH_SIZE = 5
+ITEMS_IN_TOTAL = 20
 
 configure_opentelemetry(SERVICE_NAME)
 
 async def main():
-    with trace.get_tracer(__name__).start_as_current_span(SERVICE_NAME):
+    message_metric = 0
+    with trace.get_tracer(__name__).start_as_current_span(SERVICE_NAME) as parent_span:
         blob_service_client = get_blob_service_client(STORAGE_ACCOUNT_CONNECTION_STRING)
         # get container client
         container_client = blob_service_client.get_container_client(SAGA_CONTAINER_NAME)
@@ -62,7 +62,7 @@ async def main():
         random.shuffle(order_payment_list)
         
         for i in range(0, len(order_payment_list), BATCH_SIZE):
-            trace.get_current_span().add_event(f"Uploading batch starting at {i}")
+            parent_span.add_event(f"Uploading batch starting at {i}")
             batch = order_payment_list[i:i+BATCH_SIZE]
             for item in batch:
                 print(item.id, item.__class__.__name__, item.get_filename())
@@ -74,11 +74,12 @@ async def main():
                 await blob_client.close()
 
             upload_tasks = [upload_blob(item) for item in batch]
-        
             await asyncio.gather(*upload_tasks)
-        
+            message_metric += len(batch)
+
         await container_client.close()
         await blob_service_client.close()
-
+        parent_span.set_attribute("message_metric", message_metric)
+        print(f"Uploaded {message_metric} messages")
 if __name__ == "__main__":
     asyncio.run(main())

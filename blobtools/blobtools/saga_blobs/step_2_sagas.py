@@ -2,58 +2,27 @@
 # Load environment variables
 import asyncio
 import base64
-from enum import Enum
 import json
-from blobtools.clients import get_blob_service_client
+from blobtools.clients import get_blob_service_client, get_storage_queue_client
 from blobtools.logging import configure_opentelemetry
+from blobtools.models import Saga, SagaResult, SagaStatus
 from dotenv import find_dotenv, load_dotenv
 from opentelemetry import trace
-from azure.storage.queue.aio import QueueClient
-from azure.storage.queue import QueueMessage
-from pydantic import BaseModel
 
 load_dotenv(find_dotenv())
 from blobtools.config import COMPLETED_SAGA_QUEUE_NAME, NEW_SAGA_QUEUE_NAME, SAGA_CONTAINER_NAME, STORAGE_ACCOUNT_CONNECTION_STRING
 
-class SagaStatus(str, Enum):
-    pending = 'pending'
-    completed = 'completed'
-    
-class Type(str, Enum):
-    order = 'order'
-    payment = 'payment'
-
-class Saga(BaseModel):
-    id: str
-    type: Type
-    status: SagaStatus = SagaStatus.pending
-
-    def get_other_type(self):
-        if self.type == Type.order:
-            return Type.payment
-        else:
-            return Type.order
-
-class SagaResult(BaseModel):
-    sagas: list[Saga]
-    order_location: str
-    payment_location: str
-
 SERVICE_NAME = "blobtools:step_2_sagas"
-BATCH_SIZE = 10
+BATCH_SIZE = 100
 
 configure_opentelemetry(SERVICE_NAME)
 
-def get_storage_queue_client(queue_name) -> QueueClient:
-    return QueueClient.from_connection_string(
-        conn_str=STORAGE_ACCOUNT_CONNECTION_STRING,
-        queue_name=queue_name
-    )
-
 async def main():
+    message_metric = 0
+    comepleted_saga_metric = 0
     with trace.get_tracer(__name__).start_as_current_span(SERVICE_NAME) as parent_span:
-        queue_client = get_storage_queue_client(NEW_SAGA_QUEUE_NAME)
-        result_queue_client = get_storage_queue_client(COMPLETED_SAGA_QUEUE_NAME)
+        queue_client = get_storage_queue_client(STORAGE_ACCOUNT_CONNECTION_STRING, NEW_SAGA_QUEUE_NAME)
+        result_queue_client = get_storage_queue_client(STORAGE_ACCOUNT_CONNECTION_STRING, COMPLETED_SAGA_QUEUE_NAME)
         blob_service_client = get_blob_service_client(STORAGE_ACCOUNT_CONNECTION_STRING)
         container_client = blob_service_client.get_container_client(SAGA_CONTAINER_NAME)
 
@@ -89,7 +58,7 @@ async def main():
             saga = Saga(**tags)
             if saga.status == SagaStatus.completed:
                 print(f"This blob is already complete: {saga}")
-                parent_span.add_event(f"This blob is already complete: {saga}", attributes={"saga": saga.model_dump_json})
+                parent_span.add_event(f"This blob is already complete: {saga}", attributes={"saga": saga.model_dump_json()})
                 # we dont do anything here anymore
             else:
                 # look for other blob
@@ -130,9 +99,10 @@ async def main():
                         other_saga.status = SagaStatus.completed
                         # PRODUCE THE RESULT!
                         saga_result = SagaResult(sagas=[saga, other_saga], order_location=blob_location, payment_location=other_blob_location)
-                        await result_queue_client.send_message(saga_result.model_dump_json())
                         parent_span.add_event(f"Produced result: {saga_result}", attributes={"saga_result": saga_result.model_dump_json()})
                         print(f"Produced result: {saga_result}")
+                        comepleted_saga_metric += 1
+                        await result_queue_client.send_message(saga_result.model_dump_json())
                         await other_blob_client.set_blob_tags(other_saga.model_dump(), lease=other_blob_lease)
 
                         await other_blob_lease.release()
@@ -145,11 +115,16 @@ async def main():
             parent_span.add_event(f"Deleted message: {message.id}")
             print(f"Deleted message: {message.id}")
             parent_span.set_status(trace.Status(trace.StatusCode.OK))
+            message_metric += 1
 
         await queue_client.close()
         await result_queue_client.close()
         await container_client.close()
         await blob_service_client.close()
+        parent_span.set_attribute("message_metric", message_metric)
+        parent_span.set_attribute("comepleted_saga_metric", comepleted_saga_metric)
+        print(f"Processed {message_metric} messages")
+        print(f"Produced {comepleted_saga_metric} completed sagas")
 
 if __name__ == "__main__":
     asyncio.run(main())
