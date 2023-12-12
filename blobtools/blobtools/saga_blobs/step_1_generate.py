@@ -43,8 +43,8 @@ def create_random_order_payment_pair() -> Tuple[Order, Payment]:
 # Constants from environment variables
 
 SERVICE_NAME = "blobtools:step_1_generate"
-BATCH_SIZE = 100
-ITEMS_IN_TOTAL = 1000
+BATCH_SIZE = 2
+ITEMS_IN_TOTAL = 2
 
 
 configure_opentelemetry(SERVICE_NAME)

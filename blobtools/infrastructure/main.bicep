@@ -19,6 +19,9 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     resource saga 'containers' = {
       name: 'saga'
     }
+    resource sagasmall 'containers' = {
+      name: 'saga-small'
+    }
     resource timeseries 'containers' = {
       name: 'timeseries'
     }
