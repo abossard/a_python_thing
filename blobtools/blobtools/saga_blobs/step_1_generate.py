@@ -2,6 +2,7 @@ import datetime
 import uuid
 from blobtools.clients import get_blob_service_client
 from blobtools.logging import configure_opentelemetry
+from opentelemetry import metrics
 from dotenv import load_dotenv, find_dotenv
 import asyncio
 from opentelemetry import trace
@@ -48,6 +49,9 @@ ITEMS_IN_TOTAL = 1000
 SECONDS_TO_WAIT_BETWEEN_BATCHES = 0.5
 
 configure_opentelemetry(SERVICE_NAME)
+meter = metrics.get_meter_provider().get_meter('blobs')
+order_counter = meter.create_counter("order_counter", "number of orders", "orders")
+payment_counter = meter.create_counter("payment_counter", "number of payments", "payments")
 
 async def main():
     message_metric = 0

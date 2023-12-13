@@ -1,6 +1,8 @@
 param project string = 'idxt'
 param prefix string = 'anbo'
 param storageAccountName string = '${prefix}${project}st'
+param appInsightsName string = '${prefix}${project}appi'
+param lawName string = '${prefix}${project}law'
 param location string = resourceGroup().location
 var inventoryContainerName = 'inventory'
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
@@ -36,6 +38,40 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
     resource completedSagaQueue 'queues' = {
       name: 'completed-saga'
     }
+  }
+}
+
+resource appinsights 'microsoft.insights/components@2020-02-02' = {
+  name: appInsightsName
+  location: location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    Flow_Type: 'Redfield'
+    Request_Source: 'IbizaAIExtension'
+    RetentionInDays: 30
+    WorkspaceResourceId: law.id
+    IngestionMode: 'LogAnalytics'
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
+  }
+}
+resource law 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+  name: lawName
+  location: location
+  properties: {
+    sku: {
+      name: 'pergb2018'
+    }
+    retentionInDays: 30
+    features: {
+      enableLogAccessUsingOnlyResourcePermissions: true
+    }
+    workspaceCapping: { 
+      dailyQuotaGb: -1
+    }
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
   }
 }
 
@@ -121,4 +157,5 @@ output deployEnvironment string = join([
     'SAGA_CONTAINER_NAME=${storageAccount::blobServices::saga.name}'
     'TIMESERIES_CONTAINER_NAME=${storageAccount::blobServices::timeseries.name}'
     'AZURE_SDK_TRACING_IMPLEMENTATION=opentelemetry'
+    'APPLICATIONINSIGHTS_CONNECTION_STRING="${appinsights.properties.ConnectionString}"'
   ], '\n')
