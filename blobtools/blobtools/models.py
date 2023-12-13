@@ -16,6 +16,7 @@ class Saga(BaseModel):
     id: str
     type: Type
     status: SagaStatus = SagaStatus.pending
+    ts: int
 
     def get_other_type(self):
         if self.type == Type.order:

@@ -21,7 +21,7 @@ class Order(BaseModel):
 
     def get_filename(self) -> str:
         timestamp = datetime.datetime.fromtimestamp(self.ordered_on).strftime("%Y/%m/%d")
-        return f"{timestamp}/order_{self.id}.json"
+        return f"{timestamp}/order_{self.ordered_on}_{self.id}.json"
 
 class Payment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -32,19 +32,19 @@ class Payment(BaseModel):
 
     def get_filename(self) -> str:
         timestamp = datetime.datetime.fromtimestamp(self.paid_on).strftime("%Y/%m/%d")
-        return f"{timestamp}/payment_{self.order_id}.json"
+        return f"{timestamp}/payment_{self.paid_on}_{self.order_id}.json"
     
 
 def create_random_order_payment_pair() -> Tuple[Order, Payment]:
     order = Order(order=secrets.token_hex(64))
-    payment = Payment(id=order.id, order_id=order.id, amount_cent=random.randint(1, 10000))
+    payment = Payment(id=order.id, order_id=order.id, amount_cent=random.randint(1, 10000), paid_on=order.ordered_on)
     return order, payment
 
 # Constants from environment variables
 
-SERVICE_NAME = "blobtools:step_1_generate"
-BATCH_SIZE = 100
-ITEMS_IN_TOTAL = 1000
+SERVICE_NAME = f"{__package__}:{__name__}"
+BATCH_SIZE = 20
+ITEMS_IN_TOTAL = 100
 SECONDS_TO_WAIT_BETWEEN_BATCHES = 0.5
 
 configure_opentelemetry(SERVICE_NAME)
