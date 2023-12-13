@@ -11,7 +11,7 @@ load_dotenv(find_dotenv())
 from blobtools.config import COMPLETED_SAGA_QUEUE_NAME, NEW_SAGA_QUEUE_NAME, SAGA_CONTAINER_NAME, STORAGE_ACCOUNT_CONNECTION_STRING
 
 
-SERVICE_NAME = f"{__package__}:{__name__}"
+SERVICE_NAME = f"blobtools:{__name__}"
 BATCH_SIZE = 100
 SLEEP_BETWEEN_LOOPS = 8
 configure_opentelemetry(SERVICE_NAME)

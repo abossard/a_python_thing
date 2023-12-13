@@ -1,6 +1,7 @@
 
 # Load environment variables
 import asyncio
+import base64
 import json
 from blobtools.clients import get_blob_service_client, get_storage_queue_client
 from blobtools.logging import configure_opentelemetry
@@ -12,7 +13,7 @@ load_dotenv(find_dotenv())
 from blobtools.config import COMPLETED_SAGA_QUEUE_NAME, NEW_SAGA_QUEUE_NAME, SAGA_CONTAINER_NAME, STORAGE_ACCOUNT_CONNECTION_STRING
 import time
 
-SERVICE_NAME = f"{__package__}:{__name__}"
+SERVICE_NAME = f"blobtools:{__name__}"
 BATCH_SIZE = 100
 SLEEP_BETWEEN_LOOPS = 3
 LEASE_DURATION = 60
@@ -34,7 +35,7 @@ async def main():
             with trace.get_tracer(__name__).start_as_current_span(f"message-loop-{loop_metric}") as parent_span:
                 last_message_metric = message_metric
                 async for message in queue_client.receive_messages(max_messages=BATCH_SIZE, visibility_timeout=30):
-                    plain_message = message.content
+                    plain_message = base64.b64decode(message.content).decode('utf-8')
                     parent_span.add_event(f"Received message: {plain_message}", attributes={"message": plain_message})
                     json_message = json.loads(plain_message)
                     subject = json_message['subject']
