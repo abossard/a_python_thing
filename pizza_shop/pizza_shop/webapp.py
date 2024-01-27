@@ -9,6 +9,7 @@ from opentelemetry.context import get_current as get_current_context
 from opentelemetry.sdk.trace import _Span
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from pizza_shop import SERVICE_NAME
 from pizzalibrary.functions import create_random_order
 from pizzalibrary.messaging import send_pizza_order
 from pizzalibrary.storage import upload_pizza_order
@@ -52,21 +53,21 @@ def http_exception_handler(request: Request, exc):
         )
 
 
-logger = logging.getLogger(__name__)
 meter = metrics.get_meter_provider().get_meter(__name__)
-pizza_counter = meter.create_counter("pizza_counter", "number of pizzas ordered", "pizzas")
+pizza_counter = meter.create_counter("pizza_order_counter", "number of pizzas ordered", "pizzas")
 tracer = trace.get_tracer(__name__)
-
 
 @app.get("/")
 def root():
-    with tracer.start_as_current_span(name="Order"):
+    with tracer.start_as_current_span("shop"):
+        logger = logging.getLogger(SERVICE_NAME)
+        logger.setLevel(logging.INFO)
         order = create_random_order()
         pizza_counter.add(len(order.pizzas))
         logger.info(f"Created order: {order}")
         send_pizza_order(order)
         upload_pizza_order(order)
-
+        logger.info(f"Sent order: {order}")
         return {
             "order": order
         }

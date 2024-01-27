@@ -1,30 +1,35 @@
 import logging
+import os
+import time
+import random
 
 from opentelemetry import metrics
 from opentelemetry import trace
 
 from pizzalibrary.startup import setup_telemetry
-
-setup_telemetry("pizza-maker", "1")
+SERVICE_NAME = 'pizza_maker'
+setup_telemetry(SERVICE_NAME, "1")
 
 logging.info("Starting application")
 from azure.servicebus import ServiceBusClient
 
-logger = logging.getLogger(__name__)
-meter = metrics.get_meter_provider().get_meter(__name__)
+logger = logging.getLogger(SERVICE_NAME)
+logger.setLevel(logging.INFO)
+meter = metrics.get_meter_provider().get_meter(SERVICE_NAME)
 pizza_counter = meter.create_counter("pizza_made_counter", "number of pizzas made", "pizzas")
-tracer = trace.get_tracer(__name__)
+tracer = trace.get_tracer(SERVICE_NAME)
+pizza_order_queue_name = os.getenv('PIZZA_ORDER_QUEUE_NAME')
+pizza_order_connection_string = os.getenv('PIZZA_ORDER_CONNECTION_STRING')
 
 
-with tracer.start_as_current_span(name="RECEIVER"):
-    with ServiceBusClient.from_connection_string(connstr) as client:
-        # with client.get_queue_sender(queue_name) as sender:
-        #     # Sending a single message
-        #     single_message = ServiceBusMessage("Single message")
-        #     sender.send_messages(single_message)
-        # continually receives new messages until it doesn't receive any new messages for 5 (max_wait_time) seconds.
-        with client.get_queue_receiver(queue_name=queue_name, max_wait_time=5) as receiver:
+with tracer.start_as_current_span("shift_start"):
+    with ServiceBusClient.from_connection_string(pizza_order_connection_string) as client:
+        with client.get_queue_receiver(queue_name=pizza_order_queue_name, max_wait_time=5) as receiver:
             # Receive all messages
             for msg in receiver:
-                print("Received: " + str(msg))
+                logger.info('starting to make a pizza %s', msg)
+                pizza_counter.add(1)
+                logger.info('finished making pizza %s', msg)
                 receiver.complete_message(msg)
+    logger.info('shift end')
+    print('time to go home')

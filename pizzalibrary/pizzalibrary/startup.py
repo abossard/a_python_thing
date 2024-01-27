@@ -61,7 +61,7 @@ def setup_telemetry(service_name, service_instance_id, enable_console=False):
         configure_azure_monitor(
             connection_string=application_insights_connection_string,
             resource=resource,
-            logger_name=service_name
+            logger_name=service_name,
         )
 
     else:
@@ -84,4 +84,4 @@ def setup_telemetry(service_name, service_instance_id, enable_console=False):
     if azure_sdk_tracing_implementation:
         print("AZURE_SDK_TRACING_IMPLEMENTATION is set to:", azure_sdk_tracing_implementation)
 
-    logging.getLogger().info("Tracing and logging initialized")
+    logging.getLogger(service_name).info("Tracing and logging initialized")
