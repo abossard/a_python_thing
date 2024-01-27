@@ -6,10 +6,10 @@ import random
 from opentelemetry import metrics
 from opentelemetry import trace
 
-from pizzalibrary.startup import setup_telemetry
+from pizza_library.startup import setup_telemetry
 
 SERVICE_NAME = 'pizza_maker'
-setup_telemetry(SERVICE_NAME, "1")
+setup_telemetry(SERVICE_NAME)
 
 logging.info("Starting application")
 from azure.servicebus import ServiceBusClient

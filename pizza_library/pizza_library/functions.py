@@ -1,6 +1,7 @@
 import random
 
-from pizzalibrary.models import Order, SizeEnum, TypeEnum, Ingredient, Pizza
+from pizza_library.models import Order, SizeEnum, TypeEnum, Ingredient, Pizza
+
 
 def create_random_order() -> Order:
     sizes = list(SizeEnum)

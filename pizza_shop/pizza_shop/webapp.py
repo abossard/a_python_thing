@@ -9,10 +9,10 @@ from opentelemetry.context import get_current as get_current_context
 from opentelemetry.sdk.trace import _Span
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from pizza_library.functions import create_random_order
+from pizza_library.messaging import send_pizza_order
+from pizza_library.storage import upload_pizza_order
 from pizza_shop import SERVICE_NAME
-from pizzalibrary.functions import create_random_order
-from pizzalibrary.messaging import send_pizza_order
-from pizzalibrary.storage import upload_pizza_order
 
 app = FastAPI()
 

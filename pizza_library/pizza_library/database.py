@@ -1,5 +1,5 @@
 import sqlite3
-from pizzalibrary.models import Ingredient, Order, Pizza
+from pizza_library.models import Ingredient, Order, Pizza
 from pydantic import BaseModel, parse_obj_as
 from enum import Enum
 from typing import List

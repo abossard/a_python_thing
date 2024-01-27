@@ -3,7 +3,7 @@ import os
 from azure.servicebus import ServiceBusClient, ServiceBusMessage
 from opentelemetry import trace
 
-from pizzalibrary.models import Order
+from pizza_library.models import Order
 
 PIZZA_ORDER_QUEUE_NAME = os.environ.get('PIZZA_ORDER_QUEUE_NAME')
 if PIZZA_ORDER_QUEUE_NAME is None:

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pizzalibrary"
+name = "pizza_library"
 version = "0.1.0"
 description = ""
 authors = ["Andre Bossard <anbossar@microsoft.com>"]

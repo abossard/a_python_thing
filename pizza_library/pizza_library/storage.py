@@ -6,7 +6,7 @@ import json
 
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from azure.identity import DefaultAzureCredential
-from pizzalibrary.models import Order
+from pizza_library.models import Order
 from datetime import datetime
 blob_service_client = None
 

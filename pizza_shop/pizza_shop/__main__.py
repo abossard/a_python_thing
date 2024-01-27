@@ -5,9 +5,9 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from uvicorn import run
 
 from pizza_shop import SERVICE_NAME
-from pizzalibrary.startup import setup_telemetry
+from pizza_library.startup import setup_telemetry
 
-setup_telemetry(SERVICE_NAME, "1")
+setup_telemetry(SERVICE_NAME)
 
 logger = logging.getLogger(SERVICE_NAME)
 

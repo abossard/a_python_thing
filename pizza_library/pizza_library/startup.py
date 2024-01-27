@@ -16,10 +16,9 @@ from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.metrics import MeterProvider
 
 
-def setup_telemetry(service_name, service_instance_id, enable_console=False):
+def setup_telemetry(service_name, enable_console=False):
     resource = Resource.create({
         SERVICE_NAME: service_name,
-        SERVICE_INSTANCE_ID: service_instance_id,
     })
 
     # looking for OLTP endpoint
@@ -27,6 +26,7 @@ def setup_telemetry(service_name, service_instance_id, enable_console=False):
     oltp_auth_key = os.environ.get("OLTP_AUTH_KEY")
     application_insights_connection_string = os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING")
 
+    os.environ["OTEL_SERVICE_NAME"] = os.getenv("OTEL_SERVICE_NAME", service_name)
     tracer_provider = TracerProvider(resource=resource)
     logger_provider = LoggerProvider(resource=resource)
 
@@ -60,7 +60,6 @@ def setup_telemetry(service_name, service_instance_id, enable_console=False):
         settings.tracing_implementation = OpenTelemetrySpan
         configure_azure_monitor(
             connection_string=application_insights_connection_string,
-            resource=resource,
             logger_name=service_name,
         )
 
