@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pizzalibrary"
+name = "a-python-thing"
 version = "0.1.0"
 description = ""
 authors = ["Andre Bossard <anbossar@microsoft.com>"]
@@ -7,12 +7,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pydantic = "^2.5.2"
-azure-storage-blob = "^12.19.0"
-azure-identity = "^1.15.0"
-azure-monitor-opentelemetry = "^1.2.0"
-azure-servicebus = "^7.11.4"
-azure-core = "^1.29.7"
 
 
 [build-system]

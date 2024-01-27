@@ -31,34 +31,34 @@ def configure_opentelemetry(name: str):
     # Create a TracerProvider with the configured exporter and span processor
     tracer_provider = trace.get_tracer_provider()
     tracer_provider.add_span_processor(span_processor)
-    application_insights_connection_string = os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING")
-    if application_insights_connection_string:
-        from azure.monitor.opentelemetry.exporter import AzureMonitorLogExporter
-        from azure.monitor.opentelemetry.exporter import AzureMonitorMetricExporter
-        from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
-        print("Using Application Insights endpoint: " + application_insights_connection_string)
+    # application_insights_connection_string = os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING")
+    # if application_insights_connection_string:
+    #     from azure.monitor.opentelemetry.exporter import AzureMonitorLogExporter
+    #     from azure.monitor.opentelemetry.exporter import AzureMonitorMetricExporter
+    #     from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
+    #     print("Using Application Insights endpoint: " + application_insights_connection_string)
 
-        logger_provider = LoggerProvider()
-        set_logger_provider(logger_provider)
+    #     logger_provider = LoggerProvider()
+    #     set_logger_provider(logger_provider)
 
-        logs_exporter = AzureMonitorLogExporter(
-            connection_string=application_insights_connection_string
-        )
-        logger_provider.add_log_record_processor(BatchLogRecordProcessor(logs_exporter))
-        handler = LoggingHandler()
+    #     logs_exporter = AzureMonitorLogExporter(
+    #         connection_string=application_insights_connection_string
+    #     )
+    #     logger_provider.add_log_record_processor(BatchLogRecordProcessor(logs_exporter))
+    #     handler = LoggingHandler()
 
-        # Attach LoggingHandler to root logger
-        logging.getLogger().addHandler(handler)
-        logging.getLogger().setLevel(logging.NOTSET)
+    #     # Attach LoggingHandler to root logger
+    #     logging.getLogger().addHandler(handler)
+    #     logging.getLogger().setLevel(logging.NOTSET)
 
-        metrics_exporter = AzureMonitorMetricExporter(
-            connection_string=application_insights_connection_string
-        )
+    #     metrics_exporter = AzureMonitorMetricExporter(
+    #         connection_string=application_insights_connection_string
+    #     )
 
-        reader = PeriodicExportingMetricReader(metrics_exporter, export_interval_millis=5000)
-        metrics.set_meter_provider(MeterProvider(metric_readers=[reader]))
+    #     reader = PeriodicExportingMetricReader(metrics_exporter, export_interval_millis=5000)
+    #     metrics.set_meter_provider(MeterProvider(metric_readers=[reader]))
 
-        span_exporter = AzureMonitorTraceExporter(connection_string=application_insights_connection_string)
-        span_processor = BatchSpanProcessor(span_exporter)
-        tracer_provider.add_span_processor(span_processor)
-        trace.set_tracer_provider(tracer_provider)
+    #     span_exporter = AzureMonitorTraceExporter(connection_string=application_insights_connection_string)
+    #     span_processor = BatchSpanProcessor(span_exporter)
+    #     tracer_provider.add_span_processor(span_processor)
+    #     trace.set_tracer_provider(tracer_provider)

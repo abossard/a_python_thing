@@ -45,8 +45,8 @@ def create_random_order_payment_pair() -> Tuple[Order, Payment]:
 
 SERVICE_NAME = f"blobtools:{__name__}"
 BATCH_SIZE = 100
-ITEMS_IN_TOTAL = 1000
-SECONDS_TO_WAIT_BETWEEN_BATCHES = 0.5
+ITEMS_IN_TOTAL = 10000
+SECONDS_TO_WAIT_BETWEEN_BATCHES = 1
 
 configure_opentelemetry(SERVICE_NAME)
 meter = metrics.get_meter_provider().get_meter('blobs')

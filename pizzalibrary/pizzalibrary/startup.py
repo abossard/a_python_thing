@@ -1,6 +1,9 @@
 import logging
 import os
 
+from azure.core.settings import settings
+from azure.core.tracing.ext.opentelemetry_span import OpenTelemetrySpan
+from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -13,7 +16,7 @@ from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.metrics import MeterProvider
 
 
-def setup_telemetry(service_name, service_instance_id):
+def setup_telemetry(service_name, service_instance_id, enable_console=False):
     resource = Resource.create({
         SERVICE_NAME: service_name,
         SERVICE_INSTANCE_ID: service_instance_id,
@@ -52,37 +55,18 @@ def setup_telemetry(service_name, service_instance_id):
         # set the tracer provider as the global provider
         trace.set_tracer_provider(tracer_provider)
     elif application_insights_connection_string:
-        from azure.monitor.opentelemetry.exporter import AzureMonitorLogExporter
-        from azure.monitor.opentelemetry.exporter import AzureMonitorMetricExporter
-        from azure.monitor.opentelemetry.exporter import AzureMonitorTraceExporter
+
         print("Using Application Insights endpoint: " + application_insights_connection_string)
-
-        logger_provider = LoggerProvider()
-        set_logger_provider(logger_provider)
-
-        logs_exporter = AzureMonitorLogExporter(
-            connection_string=application_insights_connection_string
+        settings.tracing_implementation = OpenTelemetrySpan
+        configure_azure_monitor(
+            connection_string=application_insights_connection_string,
+            resource=resource,
+            logger_name=service_name
         )
-        logger_provider.add_log_record_processor(BatchLogRecordProcessor(logs_exporter))
-        handler = LoggingHandler()
-
-        # Attach LoggingHandler to root logger
-        logging.getLogger().addHandler(handler)
-        logging.getLogger().setLevel(logging.NOTSET)
-
-        metrics_exporter = AzureMonitorMetricExporter(
-            connection_string=application_insights_connection_string
-        )
-
-        reader = PeriodicExportingMetricReader(metrics_exporter, export_interval_millis=5000)
-        metrics.set_meter_provider(MeterProvider(metric_readers=[reader]))
-
-        span_exporter = AzureMonitorTraceExporter(connection_string=application_insights_connection_string)
-        span_processor = BatchSpanProcessor(span_exporter)
-        tracer_provider.add_span_processor(span_processor)
-        trace.set_tracer_provider(tracer_provider)
 
     else:
+        enable_console = True
+    if enable_console:
         from opentelemetry.sdk.metrics.export import ConsoleMetricExporter
         from opentelemetry.sdk.trace.export import ConsoleSpanExporter
 
@@ -95,6 +79,7 @@ def setup_telemetry(service_name, service_instance_id):
         metrics_exporter = ConsoleMetricExporter()
         reader = PeriodicExportingMetricReader(metrics_exporter, export_interval_millis=60000)
         metrics.set_meter_provider(MeterProvider(metric_readers=[reader]))
+
     azure_sdk_tracing_implementation = os.environ.get("AZURE_SDK_TRACING_IMPLEMENTATION")
     if azure_sdk_tracing_implementation:
         print("AZURE_SDK_TRACING_IMPLEMENTATION is set to:", azure_sdk_tracing_implementation)
