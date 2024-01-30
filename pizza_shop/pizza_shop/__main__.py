@@ -1,11 +1,10 @@
 import logging
 import os
 
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from uvicorn import run
 
-from pizza_shop import SERVICE_NAME
 from pizza_library.startup import setup_telemetry
+from pizza_shop import SERVICE_NAME
 
 setup_telemetry(SERVICE_NAME)
 

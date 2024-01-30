@@ -1,3 +1,10 @@
 dist/
 .venv/
 .idea/
+blobtools/
+infrastructure/
+website/
+.gitignore
+.env
+*.db
+requirements.txt

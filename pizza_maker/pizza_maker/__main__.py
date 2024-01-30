@@ -28,6 +28,7 @@ with ServiceBusClient.from_connection_string(pizza_order_connection_string) as c
         # Receive all messages
         for msg in receiver:
             logger.info('starting to make a pizza %s', msg)
+            # todo get len of pizzas to increase counter
             pizza_counter.add(1)
             logger.info('finished making pizza %s', msg)
             receiver.complete_message(msg)

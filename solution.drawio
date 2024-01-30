@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="ctBrfVGQw4BbwQcFV2m1" name="Page-1">
-        <mxGraphModel dx="1147" dy="318" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="577" dy="635" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -35,7 +35,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="GDV6XuSOW1WboUK3NjcO" name="Page-2">
-        <mxGraphModel dx="1147" dy="318" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="577" dy="635" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -143,6 +143,79 @@
                 </mxCell>
                 <mxCell id="qAAIFEzK8RUrIhKdrpVZ-14" value="Step 4" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="700" y="620" width="120" height="60" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="BCaoRhdUIBh_snls37bl" name="TRACES">
+        <mxGraphModel dx="1734" dy="635" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-3" style="edgeStyle=none;html=1;dashed=1;fillColor=#f8cecc;strokeColor=#b85450;" edge="1" parent="1" target="BEp9INKCrkD51FCK6lIj-2">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="190" y="60" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-1" value="Span: Processing Run (n days)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="30" width="640" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-6" style="edgeStyle=none;html=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="BEp9INKCrkD51FCK6lIj-2" target="BEp9INKCrkD51FCK6lIj-5">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-2" value="Meta Data Trigger" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="130" y="140" width="120" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-8" style="edgeStyle=none;html=1;" edge="1" parent="1" source="BEp9INKCrkD51FCK6lIj-5" target="BEp9INKCrkD51FCK6lIj-7">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-5" value="Service Bus" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+                    <mxGeometry x="280" y="190" width="120" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-7" value="RPM Sync" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="430" y="230" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-26" style="edgeStyle=none;html=1;" edge="1" parent="1" source="BEp9INKCrkD51FCK6lIj-9" target="BEp9INKCrkD51FCK6lIj-10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-9" value="data is ready (spname=asdasda)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="330" width="190" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-10" value="decrypted data" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="550" y="370" width="190" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-13" value="snapshot count&lt;br&gt;ok" style="rhombus;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+                    <mxGeometry x="420" y="150" width="70" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-14" value="snapshot count&lt;br&gt;not ok" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+                    <mxGeometry x="490" y="150" width="70" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-16" value="snapshot count&lt;br&gt;ok" style="rhombus;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+                    <mxGeometry x="120" y="160" width="70" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-17" value="snapshot count&lt;br&gt;not ok" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+                    <mxGeometry x="190" y="160" width="70" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-18" value="1. add Open Telemetry distro&lt;br&gt;2. Ensure it work with App Insights&lt;br&gt;3. Where can the external tracecontext come from?" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="250" y="70" width="330" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-21" value="create trace-id based on hash from processrun name" style="edgeStyle=none;html=1;dashed=1;fillColor=#f8cecc;strokeColor=#b85450;" edge="1" parent="1" source="BEp9INKCrkD51FCK6lIj-20" target="BEp9INKCrkD51FCK6lIj-2">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-20" value="blob&lt;br&gt;/input/blobname.json&lt;br&gt;change to&lt;br&gt;/input/&lt;b&gt;processrunname&lt;/b&gt;/blobname.json" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+                    <mxGeometry x="-413" width="250" height="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-24" value="blob exists" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="260" width="190" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-25" value="cosmos db" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="290" width="190" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-27" value="Actor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+                    <mxGeometry x="-380" y="200" width="30" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="BEp9INKCrkD51FCK6lIj-28" value="&lt;i&gt;snapshot-name&lt;/i&gt;" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;" vertex="1" parent="1">
+                    <mxGeometry x="-330" y="180" width="120" height="80" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

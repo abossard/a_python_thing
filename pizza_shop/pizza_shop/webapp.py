@@ -1,4 +1,5 @@
 import logging
+import random
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +10,8 @@ from opentelemetry.context import get_current as get_current_context
 from opentelemetry.sdk.trace import _Span
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from pizza_library.functions import create_random_order
+from pizza_library.functions import create_random_order, preheat_oven, prepare_pizza, flatten_dough, bake_pizza, \
+    make_the_pizza, make_the_pizza_sync
 from pizza_library.messaging import send_pizza_order
 from pizza_library.storage import upload_pizza_order
 from pizza_shop import SERVICE_NAME
@@ -57,6 +59,7 @@ meter = metrics.get_meter_provider().get_meter(__name__)
 pizza_counter = meter.create_counter("pizza_order_counter", "number of pizzas ordered", "pizzas")
 tracer = trace.get_tracer(__name__)
 
+
 @app.get("/")
 def root():
     with tracer.start_as_current_span("shop"):
@@ -71,3 +74,21 @@ def root():
         return {
             "order": order
         }
+
+# hey -n 10 -c 5 http://127.0.0.1:8000/make_pizza
+@app.get("/make_pizza")
+async def make_pizza():
+    pizza_id = random.randint(1, 1000000)
+    await make_the_pizza(pizza_id)
+    return {
+        "message": f"Your pizza with id {pizza_id} is ready!"
+    }
+
+# hey -n 10 -c 5 http://127.0.0.1:8000/make_pizza_sync
+@app.get("/make_pizza_sync")
+def make_pizza_sync():
+    pizza_id = random.randint(1, 1000000)
+    make_the_pizza_sync(pizza_id)
+    return {
+        "message": f"Your pizza with id {pizza_id} is ready!"
+    }

@@ -60,8 +60,8 @@ BATCH_SIZE = 20
 ITEMS_IN_TOTAL = 100
 SECONDS_TO_WAIT_BETWEEN_BATCHES = 1
 
-os.environ.setdefault('OTEL_SERVICE_NAME', SERVICE_NAME)
-configure_azure_monitor(logger_name=SERVICE_NAME)
+# os.environ.setdefault('OTEL_SERVICE_NAME', SERVICE_NAME)
+# configure_azure_monitor(logger_name=SERVICE_NAME)
 # DEBUG output
 # resource = Resource.create({
 #     SERVICE_NAME: SERVICE_NAME,
@@ -78,46 +78,46 @@ configure_azure_monitor(logger_name=SERVICE_NAME)
 # metrics.set_meter_provider(MeterProvider(metric_readers=[reader]))
 
 logger = logging.getLogger(SERVICE_NAME)
-tracer = trace.get_tracer(__name__)
+# tracer = trace.get_tracer(__name__)
 
-meter = metrics.get_meter_provider().get_meter('blobs')
-order_counter = meter.create_counter("order_counter", "number of orders", "orders")
-payment_counter = meter.create_counter("payment_counter", "number of payments", "payments")
+# meter = metrics.get_meter_provider().get_meter('blobs')
+# order_counter = meter.create_counter("order_counter", "number of orders", "orders")
+# payment_counter = meter.create_counter("payment_counter", "number of payments", "payments")
 
 # insert somewhere: with tracer.start_as_current_span(f"message-loop-{loop_metric}") as parent_span:
 
 async def main():
-    with tracer.start_as_current_span("Span for correlated logs") as parent_span:
-        message_metric = 0
-        blob_service_client = get_blob_service_client(STORAGE_ACCOUNT_CONNECTION_STRING)
-        # get container client
-        container_client = blob_service_client.get_container_client(SAGA_CONTAINER_NAME)
-        # create container if not exists
+    # with tracer.start_as_current_span("Span for correlated logs") as parent_span:
+    message_metric = 0
+    blob_service_client = get_blob_service_client(STORAGE_ACCOUNT_CONNECTION_STRING)
+    # get container client
+    container_client = blob_service_client.get_container_client(SAGA_CONTAINER_NAME)
+    # create container if not exists
 
-        order_payment_pairs = [create_random_order_payment_pair() for _ in range(ITEMS_IN_TOTAL)]
-        orders, payments = zip(*order_payment_pairs)
-        order_payment_list = list(orders) + list(payments)
-        random.shuffle(order_payment_list)
+    order_payment_pairs = [create_random_order_payment_pair() for _ in range(ITEMS_IN_TOTAL)]
+    orders, payments = zip(*order_payment_pairs)
+    order_payment_list = list(orders) + list(payments)
+    random.shuffle(order_payment_list)
 
-        async def upload_blob(item):
-            blob_client = container_client.get_blob_client(item.get_filename())
-            await blob_client.upload_blob(item.model_dump_json())
-            print(f"Uploaded {item.get_filename()}")
-            await blob_client.close()
+    async def upload_blob(item):
+        blob_client = container_client.get_blob_client(item.get_filename())
+        await blob_client.upload_blob(item.model_dump_json())
+        print(f"Uploaded {item.get_filename()}")
+        await blob_client.close()
 
-        for i in range(0, len(order_payment_list), BATCH_SIZE):
-            # parent_span.add_event(f"Uploading batch starting at {i}")
-            batch = order_payment_list[i:i + BATCH_SIZE]
-            upload_tasks = [upload_blob(item) for item in batch]
-            await asyncio.gather(*upload_tasks)
-            message_metric += len(batch)
-            # parent_span.add_event(f"Uploaded batch starting at {i}")
-            await asyncio.sleep(SECONDS_TO_WAIT_BETWEEN_BATCHES)
+    for i in range(0, len(order_payment_list), BATCH_SIZE):
+        # parent_span.add_event(f"Uploading batch starting at {i}")
+        batch = order_payment_list[i:i + BATCH_SIZE]
+        upload_tasks = [upload_blob(item) for item in batch]
+        await asyncio.gather(*upload_tasks)
+        message_metric += len(batch)
+        # parent_span.add_event(f"Uploaded batch starting at {i}")
+        await asyncio.sleep(SECONDS_TO_WAIT_BETWEEN_BATCHES)
 
-        await container_client.close()
-        await blob_service_client.close()
-        # parent_span.set_attribute("message_metric", message_metric)
-        print(f"Uploaded {message_metric} messages")
+    await container_client.close()
+    await blob_service_client.close()
+    # parent_span.set_attribute("message_metric", message_metric)
+    print(f"Uploaded {message_metric} messages")
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -21,8 +21,8 @@ BATCH_SIZE = 10
 SLEEP_BETWEEN_LOOPS = 3
 LEASE_DURATION = 60
 
-os.environ.setdefault('OTEL_SERVICE_NAME', SERVICE_NAME)
-configure_azure_monitor(logger_name=SERVICE_NAME)
+# os.environ.setdefault('OTEL_SERVICE_NAME', SERVICE_NAME)
+# configure_azure_monitor(logger_name=SERVICE_NAME)
 
 
 async def main():
