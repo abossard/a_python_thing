@@ -1,9 +1,11 @@
 import logging
 import random
+from typing import Dict
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from opentelemetry import metrics
 from opentelemetry import trace
 from opentelemetry.context import get_current as get_current_context
@@ -59,6 +61,12 @@ meter = metrics.get_meter_provider().get_meter(__name__)
 pizza_counter = meter.create_counter("pizza_order_counter", "number of pizzas ordered", "pizzas")
 tracer = trace.get_tracer(__name__)
 
+# Data structure to store restaurant votes
+class RestaurantVote(BaseModel):
+    restaurant_name: str
+    votes: int
+
+restaurant_votes: Dict[str, int] = {}
 
 @app.get("/")
 def root():
@@ -92,3 +100,16 @@ def make_pizza_sync():
     return {
         "message": f"Your pizza with id {pizza_id} is ready!"
     }
+
+# New FastAPI endpoint to handle restaurant voting
+@app.post("/vote_restaurant")
+def vote_restaurant(vote: RestaurantVote):
+    if vote.restaurant_name in restaurant_votes:
+        restaurant_votes[vote.restaurant_name] += vote.votes
+    else:
+        restaurant_votes[vote.restaurant_name] = vote.votes
+    return {"message": f"Vote recorded for {vote.restaurant_name}"}
+
+@app.get("/get_votes")
+def get_votes():
+    return restaurant_votes

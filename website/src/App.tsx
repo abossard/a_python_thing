@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
@@ -34,11 +33,54 @@ function App() {
     };
   };
 
+  type RestaurantVote = {
+    restaurant_name: string;
+    votes: number;
+  };
+
   const [selectedIngredient, setSelectedIngredient] = useState('');
   const [pizzaOrder, setPizzaOrder] = useState<PizzaOrder | null>(null);
+  const [restaurantVotes, setRestaurantVotes] = useState<{ [key: string]: number }>({});
+  const [newVote, setNewVote] = useState<RestaurantVote>({ restaurant_name: '', votes: 0 });
 
   const handleIngredientChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedIngredient(event.target.value);
+  };
+
+  const handleVoteChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setNewVote(prevVote => ({
+      ...prevVote,
+      [name]: name === 'votes' ? parseInt(value) : value
+    }));
+  };
+
+  const handleVoteSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const response = await fetch('http://127.0.0.1:8000/vote_restaurant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newVote)
+      });
+      const data = await response.json();
+      console.log(data);
+      fetchVotes();
+    } catch (error) {
+      console.error('Error submitting vote:', error);
+    }
+  };
+
+  const fetchVotes = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/get_votes');
+      const data = await response.json();
+      setRestaurantVotes(data);
+    } catch (error) {
+      console.error('Error fetching votes:', error);
+    }
   };
 
   useEffect(() => {
@@ -53,6 +95,7 @@ function App() {
     };
 
     fetchPizzaOrder();
+    fetchVotes();
   }, []);
 
   return (
@@ -110,11 +153,37 @@ function App() {
             </table>
           </div>
         )}
-
+        <div>
+          <h2>Vote for Restaurants</h2>
+          <form onSubmit={handleVoteSubmit}>
+            <input
+              type="text"
+              name="restaurant_name"
+              value={newVote.restaurant_name}
+              onChange={handleVoteChange}
+              placeholder="Restaurant Name"
+              required
+            />
+            <input
+              type="number"
+              name="votes"
+              value={newVote.votes}
+              onChange={handleVoteChange}
+              placeholder="Votes"
+              required
+            />
+            <button type="submit">Submit Vote</button>
+          </form>
+          <h3>Current Votes</h3>
+          <ul>
+            {Object.entries(restaurantVotes).map(([restaurant, votes]) => (
+              <li key={restaurant}>{restaurant}: {votes} votes</li>
+            ))}
+          </ul>
+        </div>
       </header>
     </div>
   );
 }
 
 export default App;
-
