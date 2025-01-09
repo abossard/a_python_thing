@@ -70,12 +70,6 @@ async def sample_task(task_id):
     await asyncio.sleep(random.uniform(0.5, 2))  # Variable sleep time
     return f"Task {task_id} completed"
 
-@app.get("/concurrent-tasks", description="Run 100 concurrent asynchronous tasks with variable sleep times.")
-async def run_concurrent_tasks():
-    tasks = [sample_task(i) for i in range(100)]
-    results = await asyncio.gather(*tasks)
-    return {"results": results}
-
 # Background task with increased complexity
 async def background_task():
     await asyncio.sleep(10)
@@ -93,7 +87,7 @@ async def visual_task(task_id):
     await asyncio.sleep(duration)
     print(f"Task {task_id:02} |{'-' * task_id} Done ({duration:.2f}s)")
 
-@app.get("/concurrent-tasks-visual", description="Execute 100 visual concurrent tasks with increased load.")
+@app.get("/concurrent-tasks", description="Execute 100 visual concurrent tasks with increased load.")
 async def run_visual_concurrent_tasks():
     tasks = [visual_task(i) for i in range(100)]
     await asyncio.gather(*tasks)

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Series with Web Workers, LOD, and Double Canvas</title>
+  <style>
+    #container {
+      position: relative;
+      width: 800px;
+      height: 400px;
+      margin: 20px auto;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <canvas id="gridCanvas" width="800" height="400"></canvas>
+    <canvas id="dataCanvas" width="800" height="400"></canvas>
+  </div>
+
+  <script>
+    const gridCanvas = document.getElementById('gridCanvas');
+    const gridCtx = gridCanvas.getContext('2d');
+    const dataCanvas = document.getElementById('dataCanvas');
+    const dataCtx = dataCanvas.getContext('2d');
+
+    const NUM_PIXELS = dataCanvas.width;
+    const pointWidth = 1;
+    let aggregatedData = new Array(NUM_PIXELS).fill(null).map(() => ({ min: Infinity, max: -Infinity, sum: 0, count: 0 }));
+    let dataIndex = 0;
+    let scale = 1000; // Number of data points per pixel
+    const worker = new Worker('worker.js');
+
+    // Draw the grid once
+    function drawGrid() {
+      gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+      gridCtx.strokeStyle = '#ccc';
+      gridCtx.lineWidth = 1;
+      const step = 50;
+
+      for (let x = 0; x < gridCanvas.width; x += step) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(x, 0);
+        gridCtx.lineTo(x, gridCanvas.height);
+        gridCtx.stroke();
+      }
+
+      for (let y = 0; y < gridCanvas.height; y += step) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(0, y);
+        gridCtx.lineTo(gridCanvas.width, y);
+        gridCtx.stroke();
+      }
+    }
+
+    // Draw aggregated data points
+    function drawAggregatedData() {
+      dataCtx.clearRect(0, 0, dataCanvas.width, dataCanvas.height);
+      dataCtx.strokeStyle = 'black';
+      dataCtx.fillStyle = 'red';
+
+      aggregatedData.forEach((data, x) => {
+        if (data.count > 0) {
+          const min = data.min;
+          const max = data.max;
+          const avg = data.sum / data.count;
+
+          dataCtx.beginPath();
+          dataCtx.moveTo(x, min);
+          dataCtx.lineTo(x, max);
+          dataCtx.stroke();
+
+          dataCtx.fillRect(x - 1, avg - 1, 3, 3);
+        }
+      });
+    }
+
+    // Add new data points from the worker
+    function addNewData(newPoints) {
+      newPoints.forEach(y => {
+        const pixelIndex = Math.floor(dataIndex / scale) % NUM_PIXELS;
+        aggregatedData[pixelIndex].min = Math.min(aggregatedData[pixelIndex].min, y);
+        aggregatedData[pixelIndex].max = Math.max(aggregatedData[pixelIndex].max, y);
+        aggregatedData[pixelIndex].sum += y;
+        aggregatedData[pixelIndex].count += 1;
+        dataIndex++;
+      });
+
+      drawAggregatedData();
+      console.log(`Added ${newPoints.length} points. Current data index: ${dataIndex}`);
+    }
+
+    // Request new data from the worker
+    function requestData() {
+      worker.postMessage({ dataSize: 100000 });
+    }
+
+    // Handle messages from the worker
+    worker.onmessage = (e) => {
+      addNewData(e.data);
+    };
+
+    // Initialize
+    drawGrid();
+    requestData();
+    setInterval(requestData, 5000);
+  </script>
+</body>
+</html>

@@ -18,3 +18,4 @@ out/
 data/
 .env
 *.db
+node_modules/
